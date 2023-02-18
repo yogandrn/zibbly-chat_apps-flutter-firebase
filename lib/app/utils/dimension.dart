@@ -1,0 +1,30 @@
+import 'package:get/get.dart';
+import 'dart:io';
+import 'dart:math';
+
+final double screenWidth = Get.context!.width;
+final double screenHeight = Get.context!.height;
+double ratio = screenHeight / screenWidth;
+
+final size4 = ratio * 4 / ratio;
+final size6 = ratio * 6 / ratio;
+final size8 = ratio * 8 / ratio;
+final size10 = ratio * 10 / ratio;
+final size11 = ratio * 11 / ratio;
+final size12 = ratio * 12 / ratio;
+final size13 = ratio * 13 / ratio;
+final size14 = ratio * 14 / ratio;
+final size15 = ratio * 15 / ratio;
+final size16 = ratio * 16 / ratio;
+final size18 = ratio * 18 / ratio;
+final size20 = ratio * 20 / ratio;
+final size24 = ratio * 24 / ratio;
+final size25 = ratio * 25 / ratio;
+final size28 = ratio * 28 / ratio;
+final size30 = ratio * 30 / ratio;
+final size32 = ratio * 32 / ratio;
+final size36 = ratio * 36 / ratio;
+final size40 = ratio * 40 / ratio;
+final size48 = ratio * 48 / ratio;
+final size50 = ratio * 50 / ratio;
+final size60 = ratio * 60 / ratio;

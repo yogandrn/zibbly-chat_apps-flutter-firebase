@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "120302067066",
+    "project_id": "zibbly-yogandrn",
+    "storage_bucket": "zibbly-yogandrn.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:120302067066:android:27e25ebbde0d2393a24ac3",
+        "android_client_info": {
+          "package_name": "com.flutter.yogandrn.zibbly"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "120302067066-vr68n0ata8i8da3dm1a6bkp2iguuklef.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.flutter.yogandrn.zibbly",
+            "certificate_hash": "4357e60c878ab36b5b6607c0b0c0936756cad23a"
+          }
+        },
+        {
+          "client_id": "120302067066-vh2cmlhdi23tpv1qih1l3cntp20dfosi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnNUgZuEeu68XBZL5llSd9DFCHXFTaeb4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "120302067066-vh2cmlhdi23tpv1qih1l3cntp20dfosi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
