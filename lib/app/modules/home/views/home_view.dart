@@ -94,14 +94,18 @@ class HomeView extends GetView<HomeController> {
                               } else if (snapshotFriend.hasData &&
                                   snapshotFriend.data != null) {
                                 var friendData = snapshotFriend.data!.data()!;
-                                return itemChat(
-                                  chatId: chatDocs[index].id,
-                                  email: friendData['email'],
-                                  name: friendData['name'],
-                                  status: friendData['status'],
-                                  photoUrl: friendData['photoUrl'],
-                                  unread: chatDocs[index]['total_unread'],
-                                );
+                                if (chatDocs[index].data()['isEmpty'] == true) {
+                                  return SizedBox();
+                                } else {
+                                  return itemChat(
+                                    chatId: chatDocs[index].id,
+                                    email: friendData['email'],
+                                    name: friendData['name'],
+                                    status: friendData['status'],
+                                    photoUrl: friendData['photoUrl'],
+                                    unread: chatDocs[index]['total_unread'],
+                                  );
+                                }
                                 // return data!["status"] == ""
                                 //     ? ListTile(
                                 //         contentPadding:

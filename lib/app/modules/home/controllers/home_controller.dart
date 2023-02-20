@@ -12,6 +12,7 @@ class HomeController extends GetxController {
         .doc(email)
         .collection('chats')
         .orderBy('lastTime', descending: true)
+        .where('isEmpty', isNotEqualTo: true)
         .snapshots();
   }
 

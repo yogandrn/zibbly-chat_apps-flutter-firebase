@@ -68,6 +68,10 @@ class AuthController extends GetxController {
         final userData = checkUser.data() as Map<String, dynamic>;
         print(userData);
 
+        // Update User Model on local
+        user.value = UserModel.fromJson(userData);
+        user.refresh();
+
         // user(
         //   UserModel(
         //     uid: userData["uid"],
@@ -96,8 +100,6 @@ class AuthController extends GetxController {
                 lastTime: element.data()['lastTime']));
           });
 
-          // Update User Model on local
-          user.value = UserModel.fromJson(userData);
           // user.value = UserModel(
           //   uid: userData["uid"],
           //   name: userData["name"],
@@ -109,7 +111,7 @@ class AuthController extends GetxController {
           //   lastSignInTime: userData["lastSignInTime"],
           //   updateTime: userData["updateTime"],
           // );
-          user.refresh();
+
           user.update((user) {
             user!.chats = listChatUser;
           });
@@ -119,8 +121,8 @@ class AuthController extends GetxController {
           });
         }
         user.refresh();
-        // print(user);
-        print(user.value.chats![0].chatId ?? 'empty');
+        print(user.value.toString());
+        // print(user.value.chats![0].chatId ?? 'empty');
         return true;
       }
       return false;
@@ -153,13 +155,8 @@ class AuthController extends GetxController {
 
         CollectionReference users = firestore.collection('users');
         final checkUser = await users.doc(_currentUser!.email).get();
-        if (checkUser.data() != null) {
-          await users.doc(_currentUser!.email).update({
-            "lastSignInTime": _userCredential!.user!.metadata.lastSignInTime!
-                .toIso8601String(),
-            "updateTime": DateTime.now().toIso8601String(),
-          });
-        } else {
+
+        if (checkUser.data() == null) {
           await users.doc(_currentUser!.email).set({
             "uid": _userCredential!.user!.uid,
             "name": _currentUser!.displayName,
@@ -174,6 +171,12 @@ class AuthController extends GetxController {
             "updateTime": DateTime.now().toIso8601String(),
           });
           await users.doc(_currentUser!.email).collection('chats');
+        } else {
+          await users.doc(_currentUser!.email).update({
+            "lastSignInTime": _userCredential!.user!.metadata.lastSignInTime!
+                .toIso8601String(),
+            "updateTime": DateTime.now().toIso8601String(),
+          });
         }
 
         final thisUser = await users.doc(_currentUser!.email).get();
@@ -379,7 +382,8 @@ class AuthController extends GetxController {
               .set({
             "connection": sendTo,
             "lastTime": chatData['lastTime'],
-            "totel_unread": chatData['total_unread']
+            "total_unread": chatData['total_unread'],
+            "isEmpty": chatData['isEmpty']
           });
 
           // Fetching Chats collection from user document
@@ -443,6 +447,7 @@ class AuthController extends GetxController {
             "connection": sendTo,
             "lastTime": date,
             "total_unread": 0,
+            "isEmpty": true
           });
 
           // Fetching Chats collection from user document

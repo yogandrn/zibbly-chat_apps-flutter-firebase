@@ -27,16 +27,59 @@ class ChatController extends GetxController {
     required String message,
   }) async {
     try {
+      String date = DateTime.now().toIso8601String();
+      int total_unread = 0;
       CollectionReference chats = firestore.collection('chats');
+      CollectionReference users = firestore.collection('users');
 
       // create new chat message on Chat Collection
-      await chats.doc(chatId).collection('chats').add({
+      final newChat = await chats.doc(chatId).collection('chats').add({
         'pengirim': sender,
         'penerima': sendTo,
         'message': message,
-        'time': DateTime.now().toIso8601String(),
+        'time': date,
         'isRead': false,
       });
+
+      await users
+          .doc(sender)
+          .collection('chats')
+          .doc(chatId)
+          .update({'lastTime': date, "isEmpty": false});
+
+      // await users.doc(sendTo).collection('chats').doc(chatId).update({
+      //   'lastTime': date,
+      // });
+
+      final checkReceiverChat =
+          await users.doc(sendTo).collection('chats').doc(chatId).get();
+      if (checkReceiverChat.exists) {
+        // jika ada, update
+        // check total unread dahulu
+        final checkTotalUnread = await chats
+            .doc(chatId)
+            .collection("chats")
+            .where("isRead", isEqualTo: false)
+            .where("pengirim", isEqualTo: sender)
+            .get();
+
+        // hitung total unread
+        total_unread = checkTotalUnread.docs.length;
+
+        await users.doc(sendTo).collection("chats").doc(chatId).update({
+          "lastTime": date,
+          "total_unread": total_unread,
+        });
+      } else {
+        // jika tidak ada, buat baru
+        await users.doc(sendTo).collection("chats").doc(chatId).set({
+          "connection": sender,
+          "lastTime": date,
+          "total_unread": 1,
+          "isEmpty": false
+        });
+      }
+
       return 200;
     } catch (error) {
       print('error-send-chat' + error.toString());
