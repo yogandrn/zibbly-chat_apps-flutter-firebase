@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:get/get.dart';
@@ -17,6 +18,7 @@ import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
   final authController = Get.find<AuthController>();
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -78,139 +80,74 @@ class HomeView extends GetView<HomeController> {
                         snapshotChats.data != null) {
                       var chatDocs = snapshotChats.data!.docs;
                       print("List of Connections");
-                      print(chatDocs);
-                      return ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: chatDocs.length,
-                        itemBuilder: (context, index) {
-                          return StreamBuilder<
-                              DocumentSnapshot<Map<String, dynamic>>>(
-                            stream: controller.friendDataStream(
-                                chatDocs[index]["connection"]),
-                            builder: (context, snapshotFriend) {
-                              if (snapshotFriend.connectionState ==
-                                  ConnectionState.waiting) {
-                                return itemChatOnLoading();
-                              } else if (snapshotFriend.hasData &&
-                                  snapshotFriend.data != null) {
-                                var friendData = snapshotFriend.data!.data()!;
-                                if (chatDocs[index].data()['isEmpty'] == true) {
-                                  return SizedBox();
-                                } else {
+                      print(chatDocs[0]['isEmpty']);
+                      final listChats = chatDocs
+                          .where(
+                            (element) => element['isEmpty'] == false,
+                          )
+                          .toList();
+                      print(
+                          'listChats : ' + listChats[0]['isEmpty'].toString());
+                      if (listChats.isEmpty) {
+                        return ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: listChats.length,
+                          itemBuilder: (context, index) {
+                            return StreamBuilder<
+                                DocumentSnapshot<Map<String, dynamic>>>(
+                              stream: controller.friendDataStream(
+                                  listChats[index]["connection"]),
+                              builder: (context, snapshotFriend) {
+                                if (snapshotFriend.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return itemChatOnLoading();
+                                } else if (snapshotFriend.hasData &&
+                                    snapshotFriend.data != null) {
+                                  var friendData = snapshotFriend.data!.data()!;
                                   return itemChat(
-                                    chatId: chatDocs[index].id,
+                                    chatId: listChats[index].id,
                                     email: friendData['email'],
                                     name: friendData['name'],
                                     status: friendData['status'],
                                     photoUrl: friendData['photoUrl'],
                                     unread: chatDocs[index]['total_unread'],
                                   );
+                                } else {
+                                  return const SizedBox();
                                 }
-                                // return data!["status"] == ""
-                                //     ? ListTile(
-                                //         contentPadding:
-                                //             const EdgeInsets.symmetric(
-                                //           horizontal: 20,
-                                //           vertical: 5,
-                                //         ),
-                                //         onTap: () {},
-                                //         leading: CircleAvatar(
-                                //           radius: 30,
-                                //           backgroundColor: Colors.black26,
-                                //           child: ClipRRect(
-                                //             borderRadius:
-                                //                 BorderRadius.circular(100),
-                                //             child: data["photoUrl"] == ""
-                                //                 ? Image.asset(
-                                //                     "assets/images/219983.png",
-                                //                     fit: BoxFit.cover,
-                                //                   )
-                                //                 : Image.network(
-                                //                     "${data["photoUrl"]}",
-                                //                     fit: BoxFit.cover,
-                                //                   ),
-                                //           ),
-                                //         ),
-                                //         title: Text(
-                                //           "${data["name"]}",
-                                //           style: const TextStyle(
-                                //             fontSize: 20,
-                                //             fontWeight: FontWeight.w600,
-                                //           ),
-                                //         ),
-                                //         trailing: chatDocs[index]
-                                //                     ["total_unread"] ==
-                                //                 0
-                                //             ? const SizedBox()
-                                //             : Chip(
-                                //                 backgroundColor:
-                                //                     Colors.red[900],
-                                //                 label: Text(
-                                //                   "${listDocsChats[index]["total_unread"]}",
-                                //                   style: const TextStyle(
-                                //                       color: Colors.white),
-                                //                 ),
-                                //               ),
-                                //       )
-                                //     : ListTile(
-                                //         contentPadding:
-                                //             const EdgeInsets.symmetric(
-                                //           horizontal: 20,
-                                //           vertical: 5,
-                                //         ),
-                                //         onTap: () {},
-                                //         leading: CircleAvatar(
-                                //           radius: 30,
-                                //           backgroundColor: Colors.black26,
-                                //           child: ClipRRect(
-                                //             borderRadius:
-                                //                 BorderRadius.circular(100),
-                                //             child: data["photoUrl"] == ""
-                                //                 ? Image.asset(
-                                //                     "assets/images/219983.png",
-                                //                     fit: BoxFit.cover,
-                                //                   )
-                                //                 : Image.network(
-                                //                     "${data["photoUrl"]}",
-                                //                     fit: BoxFit.cover,
-                                //                   ),
-                                //           ),
-                                //         ),
-                                //         title: Text(
-                                //           "${data["name"]}",
-                                //           style: const TextStyle(
-                                //             fontSize: 20,
-                                //             fontWeight: FontWeight.w600,
-                                //           ),
-                                //         ),
-                                //         subtitle: Text(
-                                //           "${data["status"]}",
-                                //           style: const TextStyle(
-                                //             fontSize: 16,
-                                //             fontWeight: FontWeight.w600,
-                                //           ),
-                                //         ),
-                                //         trailing: listDocsChats[index]
-                                //                     ["total_unread"] ==
-                                //                 0
-                                //             ? const SizedBox()
-                                //             : Chip(
-                                //                 backgroundColor:
-                                //                     Colors.red[900],
-                                //                 label: Text(
-                                //                   "${listDocsChats[index]["total_unread"]}",
-                                //                   style: const TextStyle(
-                                //                       color: Colors.white),
-                                //                 ),
-                                //               ),
-                                //       );
-                              } else {
-                                return const SizedBox();
-                              }
-                            },
-                          );
-                        },
-                      );
+                              },
+                            );
+                          },
+                        );
+                      } else {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              imageNoChats,
+                              width: size50 * 3,
+                            ),
+                            SizedBox(height: size15),
+                            Text(
+                              'No Message',
+                              textAlign: TextAlign.center,
+                              style: inter500.copyWith(
+                                fontSize: size14,
+                                color: black,
+                              ),
+                            ),
+                            SizedBox(height: size10),
+                            Text(
+                              'You have no messages yet',
+                              textAlign: TextAlign.center,
+                              style: inter400.copyWith(
+                                fontSize: size13,
+                                color: grey,
+                              ),
+                            )
+                          ],
+                        );
+                      }
                     } else {
                       return ListView.builder(
                         padding: EdgeInsets.symmetric(
@@ -516,8 +453,17 @@ class HomeView extends GetView<HomeController> {
     int unread = 0,
   }) {
     return InkWell(
-      onTap: () => Get.toNamed(Routes.CHAT,
-          arguments: {'chat_id': chatId, 'sendTo': email}),
+      onTap: () async {
+        final result =
+            await controller.goToChatRoom(chat_id: chatId, email: email);
+        if (result == true) {
+          Get.toNamed(
+            Routes.CHAT,
+            arguments: {'chat_id': chatId, 'sendTo': email},
+          );
+        }
+        Fluttertoast.showToast(msg: result.toString());
+      },
       child: ListTile(
         contentPadding:
             EdgeInsets.symmetric(vertical: size6, horizontal: size12),

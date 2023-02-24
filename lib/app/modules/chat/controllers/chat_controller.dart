@@ -53,8 +53,10 @@ class ChatController extends GetxController {
 
       final checkReceiverChat =
           await users.doc(sendTo).collection('chats').doc(chatId).get();
+
       if (checkReceiverChat.exists) {
         // jika ada, update
+
         // check total unread dahulu
         final checkTotalUnread = await chats
             .doc(chatId)
@@ -66,6 +68,7 @@ class ChatController extends GetxController {
         // hitung total unread
         total_unread = checkTotalUnread.docs.length;
 
+        // update total unread di penerima
         await users.doc(sendTo).collection("chats").doc(chatId).update({
           "lastTime": date,
           "total_unread": total_unread,
@@ -79,6 +82,9 @@ class ChatController extends GetxController {
           "isEmpty": false
         });
       }
+
+      messageController.text = '';
+      messageController.clear();
 
       return 200;
     } catch (error) {

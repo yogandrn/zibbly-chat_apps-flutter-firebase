@@ -383,7 +383,7 @@ class AuthController extends GetxController {
             "connection": sendTo,
             "lastTime": chatData['lastTime'],
             "total_unread": chatData['total_unread'],
-            "isEmpty": chatData['isEmpty']
+            // "isEmpty": chatData['isEmpty']
           });
 
           // Fetching Chats collection from user document
@@ -447,7 +447,7 @@ class AuthController extends GetxController {
             "connection": sendTo,
             "lastTime": date,
             "total_unread": 0,
-            "isEmpty": true
+            // "isEmpty": true
           });
 
           // Fetching Chats collection from user document
@@ -491,6 +491,29 @@ class AuthController extends GetxController {
           chat_id = newChatDoc.id;
         }
       }
+
+      // cari dokumen chat dengan penerima
+      final updateReadChat = await chats
+          .doc(chat_id)
+          .collection('chats')
+          .where('isRead', isEqualTo: false)
+          .where('penerima', isEqualTo: _currentUser!.email)
+          .get();
+
+      // ubah status chat menjadi isRead = true
+      updateReadChat.docs.forEach((element) async {
+        element.id;
+        await chats.doc(chat_id).collection('chats').doc(element.id).update({
+          'isRead': true,
+        });
+      });
+
+      // ubah total_unread = 0
+      await users
+          .doc(_currentUser!.email)
+          .collection('chats')
+          .doc(chat_id)
+          .update({'total_unread': 0});
 
       print('chat_id :' + chat_id.toString());
       print('user-chats :' + user.value.chats!.toString());
