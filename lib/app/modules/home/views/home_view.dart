@@ -86,9 +86,8 @@ class HomeView extends GetView<HomeController> {
                             (element) => element['isEmpty'] == false,
                           )
                           .toList();
-                      print(
-                          'listChats : ' + listChats[0]['isEmpty'].toString());
-                      if (listChats.isEmpty) {
+                      print('listChats : ' + listChats.length.toString());
+                      if (listChats.isNotEmpty) {
                         return ListView.builder(
                           padding: EdgeInsets.zero,
                           itemCount: listChats.length,
@@ -104,13 +103,15 @@ class HomeView extends GetView<HomeController> {
                                 } else if (snapshotFriend.hasData &&
                                     snapshotFriend.data != null) {
                                   var friendData = snapshotFriend.data!.data()!;
+                                  print(listChats[index]['total_unread']);
                                   return itemChat(
                                     chatId: listChats[index].id,
+                                    name: listChats[index].id,
                                     email: friendData['email'],
-                                    name: friendData['name'],
+                                    // name: friendData['name'],
                                     status: friendData['status'],
                                     photoUrl: friendData['photoUrl'],
-                                    unread: chatDocs[index]['total_unread'],
+                                    unread: listChats[index]['total_unread'],
                                   );
                                 } else {
                                   return const SizedBox();
@@ -454,15 +455,16 @@ class HomeView extends GetView<HomeController> {
   }) {
     return InkWell(
       onTap: () async {
-        final result =
-            await controller.goToChatRoom(chat_id: chatId, email: email);
+        final result = await controller.goToChatRoom(
+            chat_id: chatId, email: authController.user.value.email!);
         if (result == true) {
           Get.toNamed(
             Routes.CHAT,
             arguments: {'chat_id': chatId, 'sendTo': email},
           );
+        } else {
+          Fluttertoast.showToast(msg: result.toString());
         }
-        Fluttertoast.showToast(msg: result.toString());
       },
       child: ListTile(
         contentPadding:

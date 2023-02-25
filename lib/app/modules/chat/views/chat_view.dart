@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:zibbly/app/controllers/auth_controller.dart';
 import 'package:zibbly/app/utils/app_const.dart';
 import 'package:zibbly/app/utils/dimension.dart';
@@ -14,6 +16,7 @@ import '../controllers/chat_controller.dart';
 
 class ChatView extends GetView<ChatController> {
   final authController = Get.find<AuthController>();
+  final arguments = Get.arguments as Map<String, dynamic>;
 
   @override
   Widget build(BuildContext context) {
@@ -85,33 +88,92 @@ class ChatView extends GetView<ChatController> {
         child: Column(
           children: [
             // CHAT DIALOGS
+            // Expanded(
+            //   child: Container(
+            //     width: screenWidth,
+            //     child: ListView(children: [
+            //       ChatBubble(
+            //         isSender: true,
+            //         message: 'Halo dek.',
+            //       ),
+            //       ChatBubble(
+            //         isSender: true,
+            //         message: 'Kuliah apa kerja?',
+            //       ),
+            //       ChatBubble(
+            //         isSender: false,
+            //         message: 'nge-punk',
+            //       ),
+            //       ChatBubble(
+            //         isSender: true,
+            //         message: 'anjink',
+            //       ),
+            //       ChatBubble(
+            //         isSender: false,
+            //         message: 'awokwowkwokwok',
+            //       ),
+            //     ]),
+            //   ),
+            // ),
+
             Expanded(
-              child: Container(
-                width: screenWidth,
-                child: ListView(children: [
-                  ChatBubble(
-                    isSender: true,
-                    message: 'Halo dek.',
-                  ),
-                  ChatBubble(
-                    isSender: true,
-                    message: 'Kuliah apa kerja?',
-                  ),
-                  ChatBubble(
-                    isSender: false,
-                    message: 'nge-punk',
-                  ),
-                  ChatBubble(
-                    isSender: true,
-                    message: 'anjink',
-                  ),
-                  ChatBubble(
-                    isSender: false,
-                    message: 'awokwowkwokwok',
-                  ),
-                ]),
-              ),
-            ),
+                child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream:
+                  controller.streamChatDialogs(chatId: arguments['chat_id']),
+              builder: (context, snapshotChats) {
+                if (snapshotChats.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: LoadingAnimationWidget.waveDots(
+                      color: primaryColor,
+                      size: size50,
+                    ),
+                  );
+                } else if (snapshotChats.hasData &&
+                    snapshotChats.data != null) {
+                  var dialogs = snapshotChats.data!.docs;
+                  return ListView.builder(
+                      itemCount: dialogs.length,
+                      itemBuilder: (context, index) {
+                        return ChatBubble(
+                            isSender: dialogs[index]['pengirim'] ==
+                                    authController.user.value.email
+                                ? true
+                                : false,
+                            message: dialogs[index]['message'],
+                            time: dialogs[index]['time']);
+                      });
+                  return ListView(children: [
+                    ChatBubble(
+                      isSender: true,
+                      message: 'Halo dek.',
+                      time: '2023-02-25T18:49:15.486311',
+                    ),
+                    ChatBubble(
+                      isSender: true,
+                      message: 'Kuliah apa kerja?',
+                      time: '2023-02-25T18:49:15.486311',
+                    ),
+                    ChatBubble(
+                      isSender: false,
+                      message: 'nge-punk',
+                      time: '2023-02-25T18:49:15.486311',
+                    ),
+                    ChatBubble(
+                      isSender: true,
+                      message: 'anjink',
+                      time: '2023-02-25T18:49:15.486311',
+                    ),
+                    ChatBubble(
+                      isSender: false,
+                      message: 'awokwowkwokwok',
+                      time: '2023-02-25T18:49:15.486311',
+                    ),
+                  ]);
+                } else {
+                  return Text('Something went wrong');
+                }
+              },
+            )),
 
             // CHAT INPUT
             Container(

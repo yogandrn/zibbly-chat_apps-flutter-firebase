@@ -25,31 +25,33 @@ class HomeController extends GetxController {
     required String email,
   }) async {
     CollectionReference users = firestore.collection('users');
-    CollectionReference chats = firestore.collection('users');
+    CollectionReference chats = firestore.collection('chats');
 
     try {
       // cari dokumen chat dengan penerima
-      final updateReadChat = await chats
+      var updateReadChat = await chats
           .doc(chat_id)
-          .collection('chats')
-          .where('isRead', isEqualTo: false)
-          .where('penerima', isEqualTo: email)
+          .collection("messages")
+          .where("isRead", isEqualTo: false)
+          .where("penerima", isEqualTo: email)
           .get();
-
+      print(chat_id + ' | ' + email);
+      print('unread chats : ' + updateReadChat.docs.length.toString());
       // ubah status chat menjadi isRead = true
       updateReadChat.docs.forEach((element) async {
-        element.id;
-        await chats.doc(chat_id).collection('chats').doc(element.id).update({
-          'isRead': true,
-        });
+        await chats
+            .doc(chat_id)
+            .collection("messages")
+            .doc(element.id)
+            .update({"isRead": true});
       });
 
       // ubah total_unread = 0
       await users
           .doc(email)
-          .collection('chats')
+          .collection("chats")
           .doc(chat_id)
-          .update({'total_unread': 0});
+          .update({"total_unread": 0});
 
       return true;
     } catch (error) {

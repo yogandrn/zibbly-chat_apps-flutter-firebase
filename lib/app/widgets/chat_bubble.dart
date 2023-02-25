@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:zibbly/app/utils/dimension.dart';
 import 'package:zibbly/app/utils/theme.dart';
 
@@ -7,13 +8,16 @@ class ChatBubble extends StatelessWidget {
     Key? key,
     required this.isSender,
     required this.message,
+    required this.time,
   }) : super(key: key);
 
-  String message;
+  String message, time;
   bool isSender;
 
   @override
   Widget build(BuildContext context) {
+    String dateTime =
+        DateFormat('yyyy-mm-dd HH:mm').format(DateTime.parse(time));
     return Container(
       margin: EdgeInsets.symmetric(horizontal: size16, vertical: size12),
       child: Column(
@@ -49,7 +53,7 @@ class ChatBubble extends StatelessWidget {
             height: size4,
           ),
           Text(
-            ' 12:09 PM ',
+            ' $dateTime ',
             style: chatTextLight.copyWith(fontSize: size10),
           )
         ],

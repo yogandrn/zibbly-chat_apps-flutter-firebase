@@ -8,6 +8,7 @@ class ChatController extends GetxController {
   var isShowEmoji = false.obs;
   late FocusNode focusNode;
   final messageController = TextEditingController();
+  late ScrollController scrollController;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -18,6 +19,16 @@ class ChatController extends GetxController {
   void deleteEmoji() {
     messageController.text =
         messageController.text.substring(0, messageController.text.length - 2);
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> streamChatDialogs(
+      {required String chatId}) {
+    return firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('time', descending: false)
+        .snapshots();
   }
 
   Future<int> sendChats({
@@ -33,7 +44,7 @@ class ChatController extends GetxController {
       CollectionReference users = firestore.collection('users');
 
       // create new chat message on Chat Collection
-      final newChat = await chats.doc(chatId).collection('chats').add({
+      final newChat = await chats.doc(chatId).collection('messages').add({
         'pengirim': sender,
         'penerima': sendTo,
         'message': message,
@@ -60,7 +71,7 @@ class ChatController extends GetxController {
         // check total unread dahulu
         final checkTotalUnread = await chats
             .doc(chatId)
-            .collection("chats")
+            .collection("messages")
             .where("isRead", isEqualTo: false)
             .where("pengirim", isEqualTo: sender)
             .get();

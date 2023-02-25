@@ -495,7 +495,7 @@ class AuthController extends GetxController {
       // cari dokumen chat dengan penerima
       final updateReadChat = await chats
           .doc(chat_id)
-          .collection('chats')
+          .collection('messages')
           .where('isRead', isEqualTo: false)
           .where('penerima', isEqualTo: _currentUser!.email)
           .get();
@@ -503,7 +503,7 @@ class AuthController extends GetxController {
       // ubah status chat menjadi isRead = true
       updateReadChat.docs.forEach((element) async {
         element.id;
-        await chats.doc(chat_id).collection('chats').doc(element.id).update({
+        await chats.doc(chat_id).collection('messages').doc(element.id).update({
           'isRead': true,
         });
       });
