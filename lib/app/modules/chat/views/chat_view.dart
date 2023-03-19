@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
@@ -18,26 +21,66 @@ class ChatView extends GetView<ChatController> {
   final authController = Get.find<AuthController>();
   final arguments = Get.arguments as Map<String, dynamic>;
 
+  // Toast Error
+  Widget errorToast = Container(
+    padding: EdgeInsets.symmetric(horizontal: size24, vertical: size18),
+    decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(size15),
+        color: Colors.black.withOpacity(0.75)),
+    child: Text(
+      "Failed to send message!",
+      style: inter400.copyWith(fontSize: size12, color: white),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: chatBackgroundLight,
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              'Name',
-              style: appbarTitleStyle,
-            ),
-            Text(
-              'the status',
-              style: appbarTitleStyle.copyWith(
-                  fontWeight: FontWeight.w400, fontSize: size13),
-            ),
-          ],
-        ),
+        title: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+            stream:
+                controller.streamFriendData(friendEmail: arguments['sendTo']),
+            builder: (context, snapshotFriend) {
+              if (snapshotFriend.hasData && snapshotFriend.data != null) {
+                var data = snapshotFriend.data!.data();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${data!['name']}',
+                      style: appbarTitleStyle,
+                    ),
+                    Text(
+                      '${data['status']}',
+                      style: appbarTitleStyle.copyWith(
+                          fontWeight: FontWeight.w400, fontSize: size13),
+                    ),
+                  ],
+                );
+              } else {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: size50 + 20,
+                      height: size16,
+                      color: white.withOpacity(0.5),
+                    ),
+                    SizedBox(
+                      height: size6,
+                    ),
+                    Container(
+                      width: size50 * 2,
+                      height: size14,
+                      color: white.withOpacity(0.5),
+                    ),
+                  ],
+                );
+              }
+            }),
         centerTitle: false,
         leadingWidth: size40 * 2.15,
         leading: InkWell(
@@ -49,29 +92,47 @@ class ChatView extends GetView<ChatController> {
               SizedBox(width: size6),
               Icon(Icons.arrow_back_rounded),
               SizedBox(width: size6),
-              Container(
-                width: size40 - 3,
-                height: size40 - 3,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(
-                      size40,
-                    ),
-                    color: silver,
-                    image: DecorationImage(
-                        image: AssetImage(
-                          imageLogin,
-                        ),
-                        fit: BoxFit.cover)),
+              // Container(
+              //   width: size40 - 3,
+              //   height: size40 - 3,
+              //   decoration: BoxDecoration(
+              //       borderRadius: BorderRadius.circular(
+              //         size40,
+              //       ),
+              //       color: silver,
+              //       image: DecorationImage(
+              //           image:
+              //           AssetImage(
+              //             imageLogin,
+              //           ),
+              //           fit: BoxFit.cover)),
+              // ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(size40),
+                child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                    stream: controller.streamFriendData(
+                        friendEmail: arguments['sendTo']),
+                    builder: (context, snapshotFriend) {
+                      if (snapshotFriend.hasData &&
+                          snapshotFriend.data != null) {
+                        var data = snapshotFriend.data!.data();
+                        return CachedNetworkImage(
+                          imageUrl: data!['photoUrl'],
+                          width: size40,
+                          height: size40,
+                          fit: BoxFit.cover,
+                        );
+                      } else {
+                        return Image.asset(
+                          defaultPhotoUrl,
+                          width: size40,
+                          height: size40,
+                          fit: BoxFit.cover,
+                        );
+                      }
+                    }),
               ),
               SizedBox(width: size6),
-              // ClipRRect(
-              //   child: Image.asset(
-              //     imageLogin,
-              //     width: size50,
-              //     height: size50,
-              //     fit: BoxFit.cover,
-              //   ),
-              // )
             ],
           ),
         ),
@@ -131,16 +192,70 @@ class ChatView extends GetView<ChatController> {
                 } else if (snapshotChats.hasData &&
                     snapshotChats.data != null) {
                   var dialogs = snapshotChats.data!.docs;
+                  Timer(
+                    Duration.zero,
+                    () => controller.scrollController.jumpTo(
+                        controller.scrollController.position.maxScrollExtent),
+                  );
                   return ListView.builder(
+                      controller: controller.scrollController,
+                      padding: EdgeInsets.only(top: size10),
                       itemCount: dialogs.length,
                       itemBuilder: (context, index) {
-                        return ChatBubble(
-                            isSender: dialogs[index]['pengirim'] ==
-                                    authController.user.value.email
-                                ? true
-                                : false,
-                            message: dialogs[index]['message'],
-                            time: dialogs[index]['time']);
+                        if (index == 0) {
+                          return Column(
+                            children: [
+                              SizedBox(height: size8),
+                              Text(
+                                "${dialogs[index]['groupTime']}",
+                                style: inter400.copyWith(
+                                  fontSize: size12,
+                                  color: black,
+                                ),
+                              ),
+                              SizedBox(height: size8),
+                              ChatBubble(
+                                  isSender: dialogs[index]['pengirim'] ==
+                                          authController.user.value.email
+                                      ? true
+                                      : false,
+                                  message: dialogs[index]['message'],
+                                  time: dialogs[index]['time']),
+                            ],
+                          );
+                        } else {
+                          if (dialogs[index]['groupTime'] ==
+                              dialogs[index - 1]['groupTime']) {
+                            return ChatBubble(
+                                isSender: dialogs[index]['pengirim'] ==
+                                        authController.user.value.email
+                                    ? true
+                                    : false,
+                                message: dialogs[index]['message'],
+                                time: dialogs[index]['time']);
+                          } else {
+                            return Column(
+                              children: [
+                                SizedBox(height: size8),
+                                Text(
+                                  "${dialogs[index]['groupTime']}",
+                                  style: inter400.copyWith(
+                                    fontSize: size12,
+                                    color: black,
+                                  ),
+                                ),
+                                SizedBox(height: size8),
+                                ChatBubble(
+                                    isSender: dialogs[index]['pengirim'] ==
+                                            authController.user.value.email
+                                        ? true
+                                        : false,
+                                    message: dialogs[index]['message'],
+                                    time: dialogs[index]['time']),
+                              ],
+                            );
+                          }
+                        }
                       });
                   return ListView(children: [
                     ChatBubble(
@@ -213,7 +328,7 @@ class ChatView extends GetView<ChatController> {
                           focusNode: controller.focusNode,
                           keyboardType: TextInputType.name,
                           textCapitalization: TextCapitalization.sentences,
-                          textInputAction: TextInputAction.done,
+                          textInputAction: TextInputAction.newline,
                           style: formTextstyle,
                           decoration: InputDecoration(
                             filled: false,
@@ -237,15 +352,23 @@ class ChatView extends GetView<ChatController> {
                         onTap: () async {
                           final argument =
                               Get.arguments as Map<String, dynamic>;
-                          final result = await controller.sendChats(
-                              chatId: argument['chat_id'],
-                              sender: authController.user.value.email!,
-                              sendTo: argument['sendTo'],
-                              message: controller.messageController.text);
-                          if (result == 200) {
-                            Fluttertoast.showToast(msg: 'success');
-                          } else {
-                            Fluttertoast.showToast(msg: 'error');
+                          if (controller.messageController.text != '' ||
+                              controller.messageController.text != null) {
+                            final msg = controller.messageController.text;
+                            controller.messageController.clear();
+                            final result = await controller.sendChats(
+                                chatId: argument['chat_id'],
+                                sender: authController.user.value.email!,
+                                sendTo: argument['sendTo'],
+                                message: msg);
+                            if (result == 200) {
+                              return;
+                            } else {
+                              FToast().init(context);
+                              FToast().showToast(
+                                  child: errorToast,
+                                  gravity: ToastGravity.CENTER);
+                            }
                           }
                         },
                         borderRadius: BorderRadius.circular(size40),

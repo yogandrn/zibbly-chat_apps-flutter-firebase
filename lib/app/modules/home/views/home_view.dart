@@ -80,7 +80,6 @@ class HomeView extends GetView<HomeController> {
                         snapshotChats.data != null) {
                       var chatDocs = snapshotChats.data!.docs;
                       print("List of Connections");
-                      print(chatDocs[0]['isEmpty']);
                       final listChats = chatDocs
                           .where(
                             (element) => element['isEmpty'] == false,
@@ -106,9 +105,9 @@ class HomeView extends GetView<HomeController> {
                                   print(listChats[index]['total_unread']);
                                   return itemChat(
                                     chatId: listChats[index].id,
-                                    name: listChats[index].id,
+                                    // name: listChats[index].id,
                                     email: friendData['email'],
-                                    // name: friendData['name'],
+                                    name: friendData['name'],
                                     status: friendData['status'],
                                     photoUrl: friendData['photoUrl'],
                                     unread: listChats[index]['total_unread'],

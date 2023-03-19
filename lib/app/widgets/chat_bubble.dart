@@ -16,9 +16,9 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String dateTime =
-        DateFormat('yyyy-mm-dd HH:mm').format(DateTime.parse(time));
+    String dateTime = DateFormat('HH:mm').format(DateTime.parse(time));
     return Container(
+      width: screenWidth,
       margin: EdgeInsets.symmetric(horizontal: size16, vertical: size12),
       child: Column(
         crossAxisAlignment:

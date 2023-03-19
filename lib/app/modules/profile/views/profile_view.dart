@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:get/get.dart';
 import 'package:zibbly/app/controllers/auth_controller.dart';
@@ -294,7 +295,16 @@ class ProfileView extends GetView<ProfileController> {
                     // BUTTON LOGOUT
                     InkWell(
                       onTap: () {
-                        authController.logout();
+                        showModalBottomSheet(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(size16))),
+                            context: context,
+                            builder: (context) {
+                              return modalConfirmLogout(context);
+                              // }
+                            });
+                        // authController.logout();
                       },
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: size16),
@@ -440,6 +450,92 @@ class ProfileView extends GetView<ProfileController> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget modalConfirmLogout(BuildContext context) {
+    return Container(
+      width: screenWidth,
+      height: screenHeight / 3.0,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(size16),
+        ),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: size20, vertical: size15),
+      child:
+          Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+        //Title
+        Text("Log Out?",
+            style: inter500.copyWith(fontSize: size15, color: black)),
+        Image.asset(
+          "assets/images/security-error.png",
+          width: screenWidth / 2.6,
+        ),
+        Text("Are you sure want to logout from your account?",
+            textAlign: TextAlign.center,
+            style: inter400.copyWith(fontSize: size13, color: black)),
+        SizedBox(
+          height: size8,
+        ),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Button Logout
+            Expanded(
+              child: GestureDetector(
+                onTap: () async {
+                  authController.logout();
+                },
+                child: Container(
+                  width: screenWidth,
+                  height: size48,
+                  margin: EdgeInsets.only(right: size6),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: size20, vertical: size8),
+                  decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border.all(color: primaryColor, width: 1.2),
+                      borderRadius: BorderRadius.circular(size12)),
+                  child: Center(
+                    child: Text(
+                      'Logout',
+                      style: inter500.copyWith(
+                          fontSize: size14, color: primaryColor),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Button Cancel
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: screenWidth,
+                  height: size48,
+                  margin: EdgeInsets.only(left: size6),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: size20, vertical: size8),
+                  decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.circular(size12)),
+                  child: Center(
+                    child: Text(
+                      'Cancel',
+                      style: inter500.copyWith(fontSize: size13, color: white),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        )
+      ]),
     );
   }
 }

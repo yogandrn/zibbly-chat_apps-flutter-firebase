@@ -383,7 +383,7 @@ class AuthController extends GetxController {
             "connection": sendTo,
             "lastTime": chatData['lastTime'],
             "total_unread": chatData['total_unread'],
-            // "isEmpty": chatData['isEmpty']
+            "isEmpty": chatData['isEmpty']
           });
 
           // Fetching Chats collection from user document
@@ -437,7 +437,7 @@ class AuthController extends GetxController {
             "connection": [_currentUser!.email, sendTo],
           });
 
-          await chats.doc(newChatDoc.id).collection('chats');
+          await chats.doc(newChatDoc.id).collection('messages');
 
           await users
               .doc(_currentUser!.email)
@@ -447,7 +447,13 @@ class AuthController extends GetxController {
             "connection": sendTo,
             "lastTime": date,
             "total_unread": 0,
-            // "isEmpty": true
+            "isEmpty": true
+          });
+          await users.doc(sendTo).collection('chats').doc(newChatDoc.id).set({
+            "connection": _currentUser!.email,
+            "lastTime": date,
+            "total_unread": 0,
+            "isEmpty": true
           });
 
           // Fetching Chats collection from user document

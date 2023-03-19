@@ -1,14 +1,17 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class ChatController extends GetxController {
   //TODO: Implement ChatController
   var isShowEmoji = false.obs;
   late FocusNode focusNode;
   final messageController = TextEditingController();
-  late ScrollController scrollController;
+  final scrollController = ScrollController();
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -31,6 +34,11 @@ class ChatController extends GetxController {
         .snapshots();
   }
 
+  Stream<DocumentSnapshot<Map<String, dynamic>>> streamFriendData(
+      {required String friendEmail}) {
+    return firestore.collection('users').doc(friendEmail).snapshots();
+  }
+
   Future<int> sendChats({
     required String chatId,
     required String sender,
@@ -50,6 +58,7 @@ class ChatController extends GetxController {
         'message': message,
         'time': date,
         'isRead': false,
+        'groupTime': DateFormat("d MMM yyyy").format(DateTime.parse(date)),
       });
 
       await users
@@ -58,9 +67,9 @@ class ChatController extends GetxController {
           .doc(chatId)
           .update({'lastTime': date, "isEmpty": false});
 
-      // await users.doc(sendTo).collection('chats').doc(chatId).update({
-      //   'lastTime': date,
-      // });
+      await users.doc(sendTo).collection('chats').doc(chatId).update({
+        'lastTime': date,
+      });
 
       final checkReceiverChat =
           await users.doc(sendTo).collection('chats').doc(chatId).get();
@@ -80,10 +89,8 @@ class ChatController extends GetxController {
         total_unread = checkTotalUnread.docs.length;
 
         // update total unread di penerima
-        await users.doc(sendTo).collection("chats").doc(chatId).update({
-          "lastTime": date,
-          "total_unread": total_unread,
-        });
+        await users.doc(sendTo).collection("chats").doc(chatId).update(
+            {"lastTime": date, "total_unread": total_unread, "isEmpty": false});
       } else {
         // jika tidak ada, buat baru
         await users.doc(sendTo).collection("chats").doc(chatId).set({
@@ -94,8 +101,15 @@ class ChatController extends GetxController {
         });
       }
 
-      messageController.text = '';
-      messageController.clear();
+      // clear messageController
+      // messageController.text = '';
+      // messageController.clear();
+
+      // jump scroll
+      Timer(
+          Duration(milliseconds: 200),
+          () => scrollController
+              .jumpTo(scrollController.position.maxScrollExtent));
 
       return 200;
     } catch (error) {
@@ -124,6 +138,7 @@ class ChatController extends GetxController {
   @override
   void onClose() {
     messageController.dispose();
+    scrollController.dispose();
     focusNode.dispose();
     super.onClose();
   }

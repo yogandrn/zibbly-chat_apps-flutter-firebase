@@ -61,7 +61,7 @@ final TextStyle appbarTitleStyle = TextStyle(
   fontFamily: 'Inter',
   fontWeight: FontWeight.w500,
   color: white,
-  fontSize: size18,
+  fontSize: size16,
 );
 
 final TextStyle chatTextLight = TextStyle(
