@@ -11,20 +11,22 @@ dependencies:
   get_storage: ^2.0.3
   intl: 0.17.0
 
-  firebase_core: ^1.21.0
-  firebase_auth: 2.0.0
+  # firebase_core: ^1.21.0
+  # firebase_core:  2.0.0
+  # firebase_auth: 4.0.0
   firebase_storage: ^10.3.11
-  cloud_firestore: ^3.5.1
+  # cloud_firestore: ^3.5.1
+  # cloud_firestore: 4.0.0
   google_sign_in: 5.4.2
 
   loading_animation_widget: 1.2.0+4
   introduction_screen: 3.1.2
   bootstrap_icons: 1.10.2
-  cached_network_image: 2.5.1
+  cached_network_image: 3.2.0
   font_awesome_flutter: 10.3.0
   avatar_glow: 2.0.2
   emoji_picker_flutter: 1.2.1
-  image_picker: ^0.8.6+1
+  image_picker: 0.8.3
 
   firebase_core_platform_interface: 4.5.1
 
@@ -33,6 +35,9 @@ dependencies:
   flutter_localizations: 
     sdk: flutter
   fluttertoast: ^8.1.2
+  firebase_core: ^1.24.0
+  firebase_auth: ^3.4.2
+  cloud_firestore: ^3.5.1
     
   # firebase_core_platform_interface: ^4.5.2
 

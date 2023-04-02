@@ -65,7 +65,7 @@ class ProfileView extends GetView<ProfileController> {
                                     )
                                   : CachedNetworkImage(
                                       imageUrl:
-                                          authController.user.value.photoUrl,
+                                          authController.user.value.photoUrl!,
                                       width: screenWidth / 2.5,
                                       height: screenWidth / 2.5,
                                       fit: BoxFit.cover,
