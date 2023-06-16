@@ -1,5 +1,5 @@
 # zibbly
 
-A new Flutter project.
-Link Apk : Klik disini(https://drive.google.com/file/d/1IAtbeSyeiyLf-GmEePImW7_ffCUrH-Sb/view?usp=sharing)
+Aplikasi bertukar pesan yang dikembangkan dengan Flutter SDK dan menggunakan database Firebase dengan fitur login menggunakan akun Google 
+Link Apk : https://drive.google.com/file/d/1IAtbeSyeiyLf-GmEePImW7_ffCUrH-Sb/view?usp=sharing
 
